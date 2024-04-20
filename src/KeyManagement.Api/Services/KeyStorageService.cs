@@ -9,8 +9,8 @@ namespace KeyManagement.Api.Services
 {
     public interface IKeyStorageService
     {
-        Task<(Guid, string)> PopLeastUsedKeyAsync();
-        Task ReleaseLockAsync(Guid id);
+        Task<(Guid?, string?)> PopLeastUsedKeyAsync();
+        Task<bool> ReleaseLockAsync(Guid id);
     }
 
     public class KeyStorageService : IKeyStorageService
@@ -21,7 +21,7 @@ namespace KeyManagement.Api.Services
         {
             _databaseConfig = databaseConfig.Value;
         }
-        public async Task<(Guid, string)> PopLeastUsedKeyAsync()
+        public async Task<(Guid?, string?)> PopLeastUsedKeyAsync()
         {
             using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
             connection.Open();
@@ -35,6 +35,12 @@ namespace KeyManagement.Api.Services
                     "SELECT TOP 1 Id, PublicKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
                     transaction: transaction);
 
+                if (result is null)
+                {
+                    transaction.Rollback();
+                    return (null, null);
+                }
+
                 var updateQuery = "UPDATE Keys SET IsLocked=1 WHERE Id = @Id";
                 await connection.ExecuteAsync(updateQuery, new
                 {
@@ -45,23 +51,28 @@ namespace KeyManagement.Api.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
-
                 transaction.Rollback();
+
+                return (null, null);
             }
 
             return (result!.Id, result.PublicKey);
         }
 
-        public async Task ReleaseLockAsync(Guid id)
+        public async Task<bool> ReleaseLockAsync(Guid id)
         {
             using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
             connection.Open();
 
-            var key = await connection.QuerySingleOrDefaultAsync<Key>("SELECT * FROM Keys WHERE Id=@Id", new
+            var key = await connection.QuerySingleOrDefaultAsync<Key>("SELECT * FROM Keys WHERE Id=@Id AND IsLocked=1", new
             {
                 Id = id
             });
+
+            if (key is null)
+            {
+                return false;
+            }
 
             await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
             {
@@ -74,6 +85,8 @@ namespace KeyManagement.Api.Services
                 PublicKey = key.PublicKey,
                 PrivateKey = key.PrivateKey
             });
+
+            return true;
         }
     }
 }

@@ -17,23 +17,31 @@ public class KeysController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(GetPublicKeyOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get()
     {
         var (id, publicKey) = await _keyStorage.PopLeastUsedKeyAsync();
 
+        if(id is null) return NotFound();
+
         return Ok(new GetPublicKeyOutput
         {
-            Id = id,
-            PublicKey = publicKey
+            Id = id.Value,
+            PublicKey = publicKey!
         });
     }
 
     [HttpPost]
     [Route("release-lock")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ReleaseLock(Guid id)
     {
-        await _keyStorage.ReleaseLockAsync(id);
+        var isSuccess = await _keyStorage.ReleaseLockAsync(id);
+        if (!isSuccess)
+        {
+            return BadRequest();
+        }
 
         return Accepted();
     }
