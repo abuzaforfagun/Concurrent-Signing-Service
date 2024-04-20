@@ -1,0 +1,38 @@
+# Ignore Visual Studio files
+.vs/
+*.vscode/
+*.sln
+*.suo
+*.user
+*.userosscache
+*.suo
+*.cache
+*.ipch/
+*.obj/
+*.bin/
+*.dll
+*.pdb
+*.log
+*.DS_Store
+*.jfm
+*.bak
+
+# Ignore NuGet packages
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+bin/
+obj/
+packages/
+
+## .NET
+packages/
+*.nupkg
+*.dll
+*.exe
+
+# Ignore build and publish directories
+bin/
+obj/
+PublishOutput/
