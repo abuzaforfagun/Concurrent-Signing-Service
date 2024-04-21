@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Asp.Versioning;
 using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Client;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,8 @@ using SigningService.Api.Models;
 namespace SigningService.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v{version:apiVersion}/keys")]
+[ApiVersion("1")]
 public class SigningController : ControllerBase
 {
     private readonly IKeysClient _keysClient;
