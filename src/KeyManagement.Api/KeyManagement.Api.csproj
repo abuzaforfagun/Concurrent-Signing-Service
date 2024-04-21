@@ -7,9 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="6.4.0" />
 	  <PackageReference Include="Dapper" Version="2.1.35" />
 	  <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+	  <PackageReference Include="NSwag.AspNetCore" Version="13.18.2" />
   </ItemGroup>
 
   <ItemGroup>

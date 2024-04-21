@@ -1,11 +1,13 @@
-﻿using KeyManagement.Api.Models;
+﻿using Asp.Versioning;
+using KeyManagement.Api.Models;
 using KeyManagement.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KeyManagement.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v{version:apiVersion}/keys")]
+[ApiVersion("1")]
 public class KeysController : ControllerBase
 {
     private readonly IKeyStorageService _keyStorage;
@@ -18,7 +20,7 @@ public class KeysController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(GetKeyOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Pop()
     {
         var id = await _keyStorage.PopLeastUsedKeyAsync();
 
@@ -30,10 +32,10 @@ public class KeysController : ControllerBase
         });
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     [ProducesResponseType(typeof(GetPrivateKeyOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<IActionResult> GetDetails(Guid id)
     {
         var privateKey = await _keyStorage.GetPrivateKeyAsync(id);
 

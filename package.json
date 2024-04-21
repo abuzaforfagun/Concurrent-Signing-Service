@@ -1,0 +1,15 @@
+{
+    "name": "key-management-api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "key-management-gen": "nswag run /runtime:Net60 key-management.nswag"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "nswag": "=13.19.0"
+    }
+}
