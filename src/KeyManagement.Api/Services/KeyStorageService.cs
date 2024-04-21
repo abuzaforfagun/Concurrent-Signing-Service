@@ -9,7 +9,8 @@ namespace KeyManagement.Api.Services
 {
     public interface IKeyStorageService
     {
-        Task<(Guid?, string?)> PopLeastUsedKeyAsync();
+        Task<Guid?> PopLeastUsedKeyAsync();
+        Task<string?> GetPrivateKeyAsync(Guid id);
         Task<bool> ReleaseLockAsync(Guid id);
     }
 
@@ -21,30 +22,30 @@ namespace KeyManagement.Api.Services
         {
             _databaseConfig = databaseConfig.Value;
         }
-        public async Task<(Guid?, string?)> PopLeastUsedKeyAsync()
+        public async Task<Guid?> PopLeastUsedKeyAsync()
         {
             using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
             connection.Open();
 
-            Key? result = null;
+            Guid? result = null;
             using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
             try
             {
                 // Execute Dapper query within the transaction
-                result = await connection.QuerySingleOrDefaultAsync<Key>(
-                    "SELECT TOP 1 Id, PublicKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
+                result = await connection.QuerySingleOrDefaultAsync<Guid?>(
+                    "SELECT TOP 1 Id FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
                     transaction: transaction);
 
                 if (result is null)
                 {
                     transaction.Rollback();
-                    return (null, null);
+                    return null;
                 }
 
                 var updateQuery = "UPDATE Keys SET IsLocked=1 WHERE Id = @Id";
                 await connection.ExecuteAsync(updateQuery, new
                 {
-                    Id = result!.Id
+                    Id = result
                 }, transaction);
                 
                 transaction.Commit();
@@ -53,10 +54,23 @@ namespace KeyManagement.Api.Services
             {
                 transaction.Rollback();
 
-                return (null, null);
+                return null;
             }
 
-            return (result!.Id, result.PublicKey);
+            return result;
+        }
+
+        public async Task<string?> GetPrivateKeyAsync(Guid id)
+        {
+            using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
+            connection.Open();
+
+            var privateKey = await connection.QuerySingleOrDefaultAsync<string>("SELECT PrivateKey FROM Keys WHERE Id=@Id AND IsLocked=1", new
+            {
+                Id = id
+            });
+
+            return privateKey;
         }
 
         public async Task<bool> ReleaseLockAsync(Guid id)

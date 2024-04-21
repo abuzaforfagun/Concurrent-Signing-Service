@@ -16,18 +16,32 @@ public class KeysController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(GetPublicKeyOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetKeyOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get()
     {
-        var (id, publicKey) = await _keyStorage.PopLeastUsedKeyAsync();
+        var id = await _keyStorage.PopLeastUsedKeyAsync();
 
         if(id is null) return NotFound();
 
-        return Ok(new GetPublicKeyOutput
+        return Ok(new GetKeyOutput
         {
-            Id = id.Value,
-            PublicKey = publicKey!
+            Id = id.Value
+        });
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(GetPrivateKeyOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get(Guid id)
+    {
+        var privateKey = await _keyStorage.GetPrivateKeyAsync(id);
+
+        if (privateKey is null) return NotFound();
+
+        return Ok(new GetPrivateKeyOutput()
+        {
+            PrivateKey = privateKey
         });
     }
 
