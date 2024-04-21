@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyManagement.Api", "src\Ke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionService.Api", "src\CollectionService.Api\CollectionService.Api.csproj", "{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProcessor", "src\MessageProcessor\MessageProcessor.csproj", "{BC44F061-6A8F-40E1-B611-F3D60D202FB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "src\Messages\Messages.csproj", "{B78E3774-E458-4B8E-9A7B-085CC9E3733C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC44F061-6A8F-40E1-B611-F3D60D202FB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC44F061-6A8F-40E1-B611-F3D60D202FB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC44F061-6A8F-40E1-B611-F3D60D202FB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC44F061-6A8F-40E1-B611-F3D60D202FB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
