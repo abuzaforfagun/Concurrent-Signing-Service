@@ -19,7 +19,7 @@ public class PublicDataSeeder : IPublicDataSeeder
     {
         using IDbConnection dbConnection = new SqlConnection(_databaseOptions.PublicDataConnectionString);
         dbConnection.Open();
-        var insertQuery = "INSERT INTO UnsignedDocuments (Document) VALUES (@Document)";
+        var insertQuery = "INSERT INTO UnsignedDocuments (Content) VALUES (@Content)";
 
         var records = new List<PublicDocument>();
         for (var i = 0; i < numberOfData; i++)
@@ -27,7 +27,7 @@ public class PublicDataSeeder : IPublicDataSeeder
             var content = $"Document No {i + 1}";
             records.Add(new PublicDocument
             {
-                Document = content
+                Content = content
             });
         }
 

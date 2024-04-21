@@ -2,5 +2,5 @@
 
 public class PublicDocument
 {
-    public string Document { get; set; } = default!;
+    public string Content { get; set; } = default!;
 }
