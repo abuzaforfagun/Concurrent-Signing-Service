@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigningService.Api", "src\SigningService.Api\SigningService.Api.csproj", "{E359234E-5191-48CA-8422-2DDAA14E64A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigningService.Api", "src\SigningService.Api\SigningService.Api.csproj", "{E359234E-5191-48CA-8422-2DDAA14E64A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSeeder", "src\DataSeeder\DataSeeder.csproj", "{C74CB24A-FEF7-4FAF-A75C-3989DE97C2A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSeeder", "src\DataSeeder\DataSeeder.csproj", "{C74CB24A-FEF7-4FAF-A75C-3989DE97C2A8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyManagement.Api", "src\KeyManagement.Api\KeyManagement.Api.csproj", "{302447ED-C582-4ED5-A712-7F9684424ED7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionService.Api", "src\CollectionService.Api\CollectionService.Api.csproj", "{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollectionService.Api", "src\CollectionService.Api\CollectionService.Api.csproj", "{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProcessor", "src\MessageProcessor\MessageProcessor.csproj", "{BC44F061-6A8F-40E1-B611-F3D60D202FB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageProcessor", "src\MessageProcessor\MessageProcessor.csproj", "{BC44F061-6A8F-40E1-B611-F3D60D202FB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "src\Messages\Messages.csproj", "{B78E3774-E458-4B8E-9A7B-085CC9E3733C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "src\Messages\Messages.csproj", "{B78E3774-E458-4B8E-9A7B-085CC9E3733C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyManagement.Api.Client", "src\KeyManagement.Api.Client\KeyManagement.Api.Client.csproj", "{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentSigning.Cryptography", "src\ConcurrentSigning.Cryptography\ConcurrentSigning.Cryptography.csproj", "{A378F144-67EA-4F94-A729-5AC0BF9E480A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B78E3774-E458-4B8E-9A7B-085CC9E3733C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,12 @@
 ﻿using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Azure;
+using Azure.Core.Serialization;
 using Azure.Messaging.ServiceBus;
 using MessageProcessor.Infrastructure;
 using Messages;
+using Newtonsoft.Json;
 
 namespace MessageProcessor.Handlers;
 
@@ -45,9 +50,14 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
     async Task ProcessMessageAsync(ProcessMessageEventArgs args)
     {
         var message = args.Message;
-        Console.WriteLine($"Received message: SequenceNumber:{message.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+        var messageJson = Encoding.UTF8.GetString(message.Body);
+        var payload = JsonConvert.DeserializeObject<SigningTriggered>(messageJson);
 
-        // Simulate processing time
+        // batch the data by X
+        // Call signing api
+        // when signing is finished, call collection service to store the data
+        // trigger an message about signing finished
+
         await Task.Delay(1000);
 
         await args.CompleteMessageAsync(message);
