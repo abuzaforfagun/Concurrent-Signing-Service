@@ -1,5 +1,4 @@
-﻿using Asp.Versioning;
-using ConcurrentSigning.Cryptography;
+﻿using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Models;
 using KeyManagement.Api.Services;
 using Microsoft.AspNetCore.Mvc;

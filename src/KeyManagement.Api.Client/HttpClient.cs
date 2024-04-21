@@ -21,25 +21,25 @@ namespace KeyManagement.Api.Client
     public partial interface IKeysClient
     {
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GetKeyOutput> PopAsync(string version);
+        System.Threading.Tasks.Task<GetKeyOutput> PopAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GetKeyOutput> PopAsync(string version, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GetKeyOutput> PopAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, string version);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, string version, System.Threading.CancellationToken cancellationToken);
-
-        /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, string version);
+        System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, string version, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
+
+        /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -71,21 +71,17 @@ namespace KeyManagement.Api.Client
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GetKeyOutput> PopAsync(string version)
+        public virtual System.Threading.Tasks.Task<GetKeyOutput> PopAsync()
         {
-            return PopAsync(version, System.Threading.CancellationToken.None);
+            return PopAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GetKeyOutput> PopAsync(string version, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GetKeyOutput> PopAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (version == null)
-                throw new System.ArgumentNullException("version");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("v{version}/keys");
-            urlBuilder_.Replace("{version}", System.Uri.EscapeDataString(ConvertToString(version, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("v1/keys");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -157,25 +153,21 @@ namespace KeyManagement.Api.Client
         }
 
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, string version)
+        public virtual System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id)
         {
-            return GetDetailsAsync(id, version, System.Threading.CancellationToken.None);
+            return GetDetailsAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, string version, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GetPrivateKeyOutput> GetDetailsAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
 
-            if (version == null)
-                throw new System.ArgumentNullException("version");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("v{version}/keys/{id}");
+            urlBuilder_.Append("v1/keys/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Replace("{version}", System.Uri.EscapeDataString(ConvertToString(version, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -247,21 +239,17 @@ namespace KeyManagement.Api.Client
         }
 
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, string version)
+        public virtual System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id)
         {
-            return ReleaseLockAsync(id, version, System.Threading.CancellationToken.None);
+            return ReleaseLockAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="KeyManagementApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, string version, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ReleaseLockAsync(System.Guid? id, System.Threading.CancellationToken cancellationToken)
         {
-            if (version == null)
-                throw new System.ArgumentNullException("version");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append("v{version}/keys/release-lock?");
-            urlBuilder_.Replace("{version}", System.Uri.EscapeDataString(ConvertToString(version, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append("v1/keys/release-lock?");
             if (id != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("id") + "=").Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture))).Append("&");

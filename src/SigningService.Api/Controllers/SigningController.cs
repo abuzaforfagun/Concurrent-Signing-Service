@@ -26,7 +26,7 @@ public class SigningController : ControllerBase
     [ProducesResponseType(typeof(List<SigningOutput>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Sign(SigningInput input)
     {
-        var privateKeyPayload = await _keysClient.GetDetailsAsync(input.KeyId, "1");
+        var privateKeyPayload = await _keysClient.GetDetailsAsync(input.KeyId);
         var plainPrivateKey =
             Encoding.UTF8.GetString(Convert.FromBase64String(SymmetricEncryption.Decrypt(privateKeyPayload.PrivateKey,
                 _encryptionOptions.PrivateKey)));
