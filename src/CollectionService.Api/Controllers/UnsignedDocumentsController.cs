@@ -21,9 +21,10 @@ public class UnsignedDocumentsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get(int pageNumber, [MaxNumber(1000)]int pageSize)
     {
+        var numberOfDocuments = await _documentCollectionService.GetNumberOfUnSignedDocuments();
         var documents = await _documentCollectionService.GetAsync(pageSize, (pageNumber -1)*pageSize);
 
-        var result = new GetDocumentOutput<UnSignedDocument>(documents, pageNumber, pageSize);
+        var result = new GetDocumentOutput<UnSignedDocument>(documents, pageNumber, pageSize, numberOfDocuments);
 
         return Ok(result);
     }

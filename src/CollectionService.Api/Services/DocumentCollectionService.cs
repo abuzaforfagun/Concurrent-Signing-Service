@@ -10,6 +10,7 @@ namespace CollectionService.Api.Services;
 public interface IDocumentCollectionService
 {
     Task<List<UnSignedDocument>> GetAsync(int take, int skip);
+    Task<int> GetNumberOfUnSignedDocuments();
     Task<AddSignedDocumentsResult> AddSignedDocumentAsync(List<SignedDocument> documents);
 }
 public class DocumentCollectionService : IDocumentCollectionService
@@ -35,6 +36,14 @@ FETCH NEXT @Take ROWS ONLY;";
 
         var data = await connection.QueryAsync<UnSignedDocument>(query, new {Take = take, Skip = skip});
         return data.ToList();
+    }
+
+    public async Task<int> GetNumberOfUnSignedDocuments()
+    {
+        using IDbConnection connection = new SqlConnection(_databaseConfig.PublicDataConnectionString);
+        connection.Open();
+
+        return await connection.QuerySingleOrDefaultAsync<int>("SELECT COUNT(1) FROM UnsignedDocuments");
     }
 
     public async Task<AddSignedDocumentsResult> AddSignedDocumentAsync(List<SignedDocument> documents)
