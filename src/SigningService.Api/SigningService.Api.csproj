@@ -10,4 +10,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\KeyManagement.Api.Client\KeyManagement.Api.Client.csproj" />
+  </ItemGroup>
+
 </Project>
