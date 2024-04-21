@@ -1,4 +1,5 @@
-﻿using CollectionService.Api.Dtos;
+﻿using System.Net;
+using CollectionService.Api.Dtos;
 using CollectionService.Api.Models;
 using CollectionService.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,8 @@ public class SignedDocumentsController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(List<AddSignedDocumentInput> input)
     {
         if (input.Count == 0)
