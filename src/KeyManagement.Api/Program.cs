@@ -1,29 +1,27 @@
+using Asp.Versioning;
 using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Config;
 using KeyManagement.Api.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddVersionedApiExplorer(o =>
-    {
-        o.GroupNameFormat = "'v'VVV";
-        o.SubstituteApiVersionInUrl = true;
-    })
+builder.Services
     .AddApiVersioning(o =>
     {
         o.AssumeDefaultVersionWhenUnspecified = true;
-        o.ReportApiVersions = true;
         o.DefaultApiVersion = new ApiVersion(1, 0);
         o.ApiVersionReader = new UrlSegmentApiVersionReader();
-        o.UseApiBehavior = false;
+    })
+    .AddApiExplorer(o =>
+    {
+        o.GroupNameFormat = "'v'VVV";
+        o.SubstituteApiVersionInUrl = true;
     });
 
-builder.Services.AddSwaggerDocument(config =>
+    builder.Services.AddSwaggerDocument(config =>
 {
     config.PostProcess = document =>
     {
