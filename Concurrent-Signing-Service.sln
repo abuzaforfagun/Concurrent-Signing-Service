@@ -17,7 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "src\Messages\Me
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KeyManagement.Api.Client", "src\KeyManagement.Api.Client\KeyManagement.Api.Client.csproj", "{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentSigning.Cryptography", "src\ConcurrentSigning.Cryptography\ConcurrentSigning.Cryptography.csproj", "{A378F144-67EA-4F94-A729-5AC0BF9E480A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConcurrentSigning.Cryptography", "src\ConcurrentSigning.Cryptography\ConcurrentSigning.Cryptography.csproj", "{A378F144-67EA-4F94-A729-5AC0BF9E480A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KeyManagement", "KeyManagement", "{2CC925F4-888A-4DE0-B749-A43F1795BD63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigningService.Api.Client", "src\SigningService.Api.Client\SigningService.Api.Client.csproj", "{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,9 +61,17 @@ Global
 		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A378F144-67EA-4F94-A729-5AC0BF9E480A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{302447ED-C582-4ED5-A712-7F9684424ED7} = {2CC925F4-888A-4DE0-B749-A43F1795BD63}
+		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C} = {2CC925F4-888A-4DE0-B749-A43F1795BD63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12CA5B75-0FE8-43C9-848E-DDC5264903EA}

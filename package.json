@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "key-management-gen": "nswag run /runtime:Net60 key-management.nswag"
+      "key-management-gen": "nswag run /runtime:Net60 key-management.nswag",
+      "signing-service-gen": "nswag run /runtime:Net60 signing-service.nswag"
     },
     "author": "",
     "license": "ISC",
