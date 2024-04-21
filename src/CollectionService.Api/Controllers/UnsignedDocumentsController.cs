@@ -8,11 +8,11 @@ namespace CollectionService.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UnsignedDocumentController : ControllerBase
+public class UnsignedDocumentsController : ControllerBase
 {
     private readonly IDocumentCollectionService _documentCollectionService;
 
-    public UnsignedDocumentController(IDocumentCollectionService documentCollectionService)
+    public UnsignedDocumentsController(IDocumentCollectionService documentCollectionService)
     {
         _documentCollectionService = documentCollectionService;
     }
