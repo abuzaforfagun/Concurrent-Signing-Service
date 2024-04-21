@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Config;
 using KeyManagement.Api.Services;
 
@@ -25,6 +26,7 @@ builder.Services.AddSwaggerDocument(config =>
 builder.Services.AddOptions();
 
 builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection("Database"));
+builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection("Encryption"));
 
 builder.Services.AddSingleton<IKeyStorageService, KeyStorageService>();
 

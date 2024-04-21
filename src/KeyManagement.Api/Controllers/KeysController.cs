@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
+using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Models;
 using KeyManagement.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace KeyManagement.Api.Controllers;
 
@@ -11,10 +13,12 @@ namespace KeyManagement.Api.Controllers;
 public class KeysController : ControllerBase
 {
     private readonly IKeyStorageService _keyStorage;
+    private readonly EncryptionOptions _encryptionOptions;
 
-    public KeysController(IKeyStorageService keyStorage)
+    public KeysController(IKeyStorageService keyStorage, IOptions<EncryptionOptions> encryptionOptions)
     {
         _keyStorage = keyStorage;
+        _encryptionOptions = encryptionOptions.Value;
     }
 
     [HttpGet]
@@ -43,7 +47,7 @@ public class KeysController : ControllerBase
 
         return Ok(new GetPrivateKeyOutput()
         {
-            PrivateKey = privateKey
+            PrivateKey = SymmetricEncryption.Encrypt(privateKey, _encryptionOptions.PrivateKey) 
         });
     }
 

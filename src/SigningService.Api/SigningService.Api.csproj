@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ConcurrentSigning.Cryptography\ConcurrentSigning.Cryptography.csproj" />
     <ProjectReference Include="..\KeyManagement.Api.Client\KeyManagement.Api.Client.csproj" />
   </ItemGroup>
 

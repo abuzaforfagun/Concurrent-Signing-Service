@@ -1,7 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using ConcurrentSigning.Cryptography;
 using KeyManagement.Api.Client;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using SigningService.Api.Models;
 
 namespace SigningService.Api.Controllers;
@@ -11,10 +13,12 @@ namespace SigningService.Api.Controllers;
 public class SigningController : ControllerBase
 {
     private readonly IKeysClient _keysClient;
+    private readonly EncryptionOptions _encryptionOptions;
 
-    public SigningController(IKeysClient keysClient)
+    public SigningController(IKeysClient keysClient, IOptions<EncryptionOptions> encryptionOptions)
     {
         _keysClient = keysClient;
+        _encryptionOptions = encryptionOptions.Value;
     }
 
     [HttpPost]
@@ -22,7 +26,10 @@ public class SigningController : ControllerBase
     [ProducesResponseType(typeof(List<SigningOutput>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Sign(SigningInput input)
     {
-        var privateKey = await _keysClient.GetDetailsAsync(input.KeyId, "1");
+        var privateKeyPayload = await _keysClient.GetDetailsAsync(input.KeyId, "1");
+        var plainPrivateKey =
+            Encoding.UTF8.GetString(Convert.FromBase64String(SymmetricEncryption.Decrypt(privateKeyPayload.PrivateKey,
+                _encryptionOptions.PrivateKey)));
 
         var result = new List<SigningOutput>();
 
@@ -31,7 +38,6 @@ public class SigningController : ControllerBase
             byte[] bytesToSign = Encoding.UTF8.GetBytes(data.Content);
 
             using var rsa = new RSACryptoServiceProvider();
-            var plainPrivateKey = Encoding.UTF8.GetString(Convert.FromBase64String(privateKey.PrivateKey));
             rsa.FromXmlString(plainPrivateKey);
 
             byte[] signature = rsa.SignData(bytesToSign, "SHA256");
