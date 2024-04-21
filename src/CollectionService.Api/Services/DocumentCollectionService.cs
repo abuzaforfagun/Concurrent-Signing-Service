@@ -9,7 +9,8 @@ namespace CollectionService.Api.Services;
 
 public interface IDocumentCollectionService
 {
-    Task<List<Document>> GetAsync(int take, int skip);
+    Task<List<UnSignedDocument>> GetAsync(int take, int skip);
+    Task<AddSignedDocumentsResult> AddSignedDocumentAsync(List<SignedDocument> documents);
 }
 public class DocumentCollectionService : IDocumentCollectionService
 {
@@ -20,7 +21,7 @@ public class DocumentCollectionService : IDocumentCollectionService
         _databaseConfig = databaseConfig.Value;
     }
 
-    public async Task<List<Document>> GetAsync(int take, int skip)
+    public async Task<List<UnSignedDocument>> GetAsync(int take, int skip)
     {
         using IDbConnection connection = new SqlConnection(_databaseConfig.PublicDataConnectionString);
         connection.Open();  
@@ -32,7 +33,38 @@ ORDER BY CreatedAtUtc
 OFFSET @Skip ROWS
 FETCH NEXT @Take ROWS ONLY;";
 
-        var data = await connection.QueryAsync<Document>(query, new {Take = take, Skip = skip});
+        var data = await connection.QueryAsync<UnSignedDocument>(query, new {Take = take, Skip = skip});
         return data.ToList();
+    }
+
+    public async Task<AddSignedDocumentsResult> AddSignedDocumentAsync(List<SignedDocument> documents)
+    {
+        using IDbConnection dbConnection = new SqlConnection(_databaseConfig.PublicDataConnectionString);
+        dbConnection.Open();
+
+        var documentIds = documents.Select(d => d.DocumentId);
+        var existingDocuments = (await dbConnection.QueryAsync<int>(
+            "SELECT DocumentId FROM SignedDocuments WHERE DocumentId IN (@DocumentId)", new
+            {
+                DocumentId = documentIds
+            })).ToList();
+
+        if (existingDocuments.Any())
+        {
+            return new AddSignedDocumentsResult(existingDocuments);
+        }
+
+        var insertQuery = "INSERT INTO SignedDocuments (DocumentId, Content) VALUES (@DocumentId, @Content)";
+
+        try
+        {
+            var affectedRecords = await dbConnection.ExecuteAsync(insertQuery, documents);
+
+            return new AddSignedDocumentsResult(affectedRecords > 0);
+        }
+        catch (Exception)
+        {
+            return new AddSignedDocumentsResult(false);
+        }
     }
 }

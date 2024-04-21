@@ -17,13 +17,13 @@ public class UnsignedDocumentsController : ControllerBase
         _documentCollectionService = documentCollectionService;
     }
 
-    [ProducesResponseType(typeof(GetDocumentOutput<Document>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetDocumentOutput<UnSignedDocument>), StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> Get(int pageNumber, [MaxNumber(1000)]int pageSize)
     {
         var documents = await _documentCollectionService.GetAsync(pageSize, (pageNumber -1)*pageSize);
 
-        var result = new GetDocumentOutput<Document>(documents, pageNumber, pageSize);
+        var result = new GetDocumentOutput<UnSignedDocument>(documents, pageNumber, pageSize);
 
         return Ok(result);
     }
