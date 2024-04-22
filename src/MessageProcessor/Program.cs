@@ -30,6 +30,7 @@ static IHostBuilder CreateHostBuilder(string[] args)
 
             services.AddSingleton<IServiceBusClientFactory>(new ServiceBusClientFactory(serviceBusConnectionString));
             services.AddSingleton<ISigningTriggeredHandler, SigningTriggeredHandler>();
+            services.AddSingleton<ISigningCompletedHandler, SigningCompletedHandler>();
             services.AddHttpClient<IDocumentsClient, DocumentsClient>(client =>
                 {
                     client.BaseAddress = new Uri(configuration.GetValue<string>("CollectionsApi:BaseAddress"));
@@ -49,6 +50,7 @@ static IHostBuilder CreateHostBuilder(string[] args)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(30));
 
             services.AddHostedService<SigningTriggeredHandlerHostedService>();
+            services.AddHostedService<SigningCompletedHandlerHostedService>();
         });
 
     return builder;
