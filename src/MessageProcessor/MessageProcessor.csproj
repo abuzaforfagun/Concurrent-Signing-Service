@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CollectionService.Api.Client\CollectionService.Api.Client.csproj" />
+    <ProjectReference Include="..\KeyManagement.Api.Client\KeyManagement.Api.Client.csproj" />
     <ProjectReference Include="..\Messages\Messages.csproj" />
     <ProjectReference Include="..\SigningService.Api.Client\SigningService.Api.Client.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using CollectionService.Api.Client;
+using KeyManagement.Api.Client;
 using MessageProcessor.Config;
 using MessageProcessor.Handlers;
 using MessageProcessor.HostedService;
@@ -38,6 +39,12 @@ static IHostBuilder CreateHostBuilder(string[] args)
             services.AddHttpClient<ISigningClient, SigningClient>(client =>
                 {
                     client.BaseAddress = new Uri(configuration.GetValue<string>("SigningApi:BaseAddress"));
+                })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(30));
+
+            services.AddHttpClient<IKeysClient, KeysClient>(client =>
+                {
+                    client.BaseAddress = new Uri(configuration.GetValue<string>("KeysApi:BaseAddress"));
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(30));
 
