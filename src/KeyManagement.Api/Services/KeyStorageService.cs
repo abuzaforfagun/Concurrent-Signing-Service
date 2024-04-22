@@ -88,17 +88,29 @@ namespace KeyManagement.Api.Services
                 return false;
             }
 
-            await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
+            using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+            try
             {
-                Id = id
-            });
+                await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
+                {
+                    Id = id
+                }, transaction);
 
-            await connection.ExecuteAsync("INSERT INTO Keys (Id, PublicKey, PrivateKey) VALUES (@Id, @PublicKey, @PrivateKey)", new
+                await connection.ExecuteAsync(
+                    "INSERT INTO Keys (Id, PublicKey, PrivateKey) VALUES (@Id, @PublicKey, @PrivateKey)", new
+                    {
+                        Id = key.Id,
+                        PublicKey = key.PublicKey,
+                        PrivateKey = key.PrivateKey
+                    }, transaction);
+            }
+            catch (Exception)
             {
-                Id = key.Id,
-                PublicKey = key.PublicKey,
-                PrivateKey = key.PrivateKey
-            });
+                transaction.Rollback();
+
+                return false;
+            }
+            
 
             return true;
         }
