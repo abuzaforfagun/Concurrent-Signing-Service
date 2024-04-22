@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SigningService", "SigningSe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CollectionService", "CollectionService", "{96C84E31-CD67-4777-95C4-816DA7227E39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionService.Api.Client", "src\CollectionService.Api.Client\CollectionService.Api.Client.csproj", "{766C3513-D495-4929-A415-BD70E64CA759}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{766C3513-D495-4929-A415-BD70E64CA759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{766C3513-D495-4929-A415-BD70E64CA759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{766C3513-D495-4929-A415-BD70E64CA759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{766C3513-D495-4929-A415-BD70E64CA759}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +85,7 @@ Global
 		{988C9AEF-8294-4BCA-97C6-4CEBAF4260DC} = {96C84E31-CD67-4777-95C4-816DA7227E39}
 		{E0C20179-0A0D-42C2-B9F3-979CBDDE5B5C} = {2CC925F4-888A-4DE0-B749-A43F1795BD63}
 		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF} = {228F26D1-CC21-4511-B3C2-495EE4E84DF1}
+		{766C3513-D495-4929-A415-BD70E64CA759} = {96C84E31-CD67-4777-95C4-816DA7227E39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12CA5B75-0FE8-43C9-848E-DDC5264903EA}
