@@ -1,12 +1,12 @@
 ﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Azure;
-using Azure.Core.Serialization;
 using Azure.Messaging.ServiceBus;
+using CollectionService.Api.Client;
+using MessageProcessor.Config;
 using MessageProcessor.Infrastructure;
 using Messages;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SigningService.Api.Client;
 
 namespace MessageProcessor.Handlers;
 
@@ -18,15 +18,23 @@ public interface ISigningTriggeredHandler
 
 public class SigningTriggeredHandler : ISigningTriggeredHandler
 {
-    private readonly IServiceBusClientFactory _serviceBusClientFactory;
-    private ServiceBusClient _serviceBusClient;
+    private readonly ISigningClient _signingClient;
+    private readonly IDocumentsClient _documentClient;
+    private readonly AppSettings _appSettings;
+    private readonly ServiceBusClient _serviceBusClient;
 
     readonly string QueueName = SigningTriggered.QueueName;
 
-    public SigningTriggeredHandler(IServiceBusClientFactory serviceBusClientFactory)
+    public SigningTriggeredHandler(
+        IServiceBusClientFactory serviceBusClientFactory, 
+        ISigningClient signingClient,
+        IDocumentsClient documentClient,
+        IOptions<AppSettings> appSettings)
     {
-        _serviceBusClientFactory = serviceBusClientFactory;
-        _serviceBusClient = _serviceBusClientFactory.CreateClient();
+        _signingClient = signingClient;
+        _documentClient = documentClient;
+        _appSettings = appSettings.Value;
+        _serviceBusClient = serviceBusClientFactory.CreateClient();
     }
 
     public async Task StartProcessingAsync(CancellationToken token)
@@ -41,10 +49,7 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
 
     public async Task StopProcessingAsync()
     {
-        if (_serviceBusClient != null)
-        {
-            await _serviceBusClient.DisposeAsync();
-        }
+        await _serviceBusClient.DisposeAsync();
     }
 
     async Task ProcessMessageAsync(ProcessMessageEventArgs args)
@@ -52,13 +57,43 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         var message = args.Message;
         var messageJson = Encoding.UTF8.GetString(message.Body);
         var payload = JsonConvert.DeserializeObject<SigningTriggered>(messageJson);
-
+        var signingDataTasks = new List<Task<ICollection<SigningOutput>>>();
         // batch the data by X
-        // Call signing api
-        // when signing is finished, call collection service to store the data
-        // trigger an message about signing finished
+        for (int i = 0; i < payload!.Documents.Count; i++)
+        {
+            var batch = payload.Documents.GetRange(i, Math.Min(_appSettings.SigningBatchSize, payload.Documents.Count));
+            var signedDataTask =  _signingClient.SignAsync(new SigningInput
+            {
+                KeyId = new Guid(payload.KeyId),
+                Data = batch.Select(d => new DataItem
+                {
+                    Content = d.Content,
+                    Id = d.DocumentId
+                }).ToList()
+            });
+            signingDataTasks.Add(signedDataTask);
+        }
 
-        await Task.Delay(1000);
+        var singedDataCollection = await Task.WhenAll(signingDataTasks);
+
+        var signedDataList = singedDataCollection.SelectMany(c => c).ToList();
+
+        var storeSignedDataTasks = new List<Task>();
+        for (int i = 0; i < signedDataList.Count; i++)
+        {
+            var batch = signedDataList.GetRange(i, Math.Min(_appSettings.CollectionServiceBatchSize, payload.Documents.Count));
+
+
+            var signedDataTask = _documentClient.CreateSignedAsync(batch.Select(b => new AddSignedDocumentInput
+            {
+                Content = b.SignedData,
+                DocumentId = b.Id
+            }));
+            storeSignedDataTasks.Add(signedDataTask);
+        }
+
+        await Task.WhenAll(storeSignedDataTasks);
+        
 
         await args.CompleteMessageAsync(message);
     }
