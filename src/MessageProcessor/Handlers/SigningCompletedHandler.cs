@@ -1,13 +1,9 @@
 ﻿using System.Text;
 using Azure.Messaging.ServiceBus;
-using CollectionService.Api.Client;
 using KeyManagement.Api.Client;
-using MessageProcessor.Config;
 using MessageProcessor.Infrastructure;
 using Messages;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SigningService.Api.Client;
 
 namespace MessageProcessor.Handlers;
 
@@ -22,7 +18,7 @@ public class SigningCompletedHandler : ISigningCompletedHandler
     private readonly IKeysClient _keysClient;
     private readonly ServiceBusClient _serviceBusClient;
 
-    readonly string QueueName = SigningTriggered.QueueName;
+    readonly string QueueName = SigningCompleted.QueueName;
 
     public SigningCompletedHandler(
         IServiceBusClientFactory serviceBusClientFactory, 
