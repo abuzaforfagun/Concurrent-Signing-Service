@@ -3,9 +3,9 @@
 public class AddSignedDocumentsResult
 {
     public bool IsSuccess { get; }
-    public List<int> ExistingDocumentIds { get; } = new();
+    public List<Guid> ExistingDocumentIds { get; } = new();
 
-    public AddSignedDocumentsResult(List<int> existingDocumentIds)
+    public AddSignedDocumentsResult(List<Guid> existingDocumentIds)
     {
         ExistingDocumentIds = existingDocumentIds;
         IsSuccess = existingDocumentIds.Count == 0;

@@ -52,7 +52,7 @@ FETCH NEXT @Take ROWS ONLY;";
         dbConnection.Open();
 
         var documentIds = documents.Select(d => d.DocumentId);
-        var existingDocuments = (await dbConnection.QueryAsync<int>(
+        var existingDocuments = (await dbConnection.QueryAsync<Guid>(
             "SELECT DocumentId FROM SignedDocuments WHERE DocumentId IN (@DocumentId)", new
             {
                 DocumentId = documentIds
