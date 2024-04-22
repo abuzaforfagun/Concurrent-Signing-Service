@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Asp.Versioning;
 using CollectionService.Api.Dtos;
 using CollectionService.Api.Models;
 using CollectionService.Api.Services;
@@ -7,7 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace CollectionService.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v{version:apiVersion}/signed-documents")]
+[ApiVersion("1")]
 public class SignedDocumentsController : ControllerBase
 {
     private readonly IDocumentCollectionService _documentCollectionService;

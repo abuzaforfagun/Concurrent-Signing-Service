@@ -1,4 +1,5 @@
-﻿using CollectionService.Api.Attributes;
+﻿using Asp.Versioning;
+using CollectionService.Api.Attributes;
 using CollectionService.Api.Dtos;
 using CollectionService.Api.Models;
 using CollectionService.Api.Services;
@@ -7,7 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace CollectionService.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v{version:apiVersion}/un-signed-documents")]
+[ApiVersion("1")]
 public class UnsignedDocumentsController : ControllerBase
 {
     private readonly IDocumentCollectionService _documentCollectionService;
