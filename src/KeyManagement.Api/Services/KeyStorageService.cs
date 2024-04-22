@@ -65,7 +65,7 @@ namespace KeyManagement.Api.Services
             using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
             connection.Open();
 
-            var privateKey = await connection.QuerySingleOrDefaultAsync<string>("SELECT PrivateKey FROM Keys WHERE Id=@Id AND IsLocked=0", new
+            var privateKey = await connection.QuerySingleOrDefaultAsync<string>("SELECT PrivateKey FROM Keys WHERE Id=@Id", new
             {
                 Id = id
             });
