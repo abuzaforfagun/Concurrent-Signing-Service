@@ -93,7 +93,17 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         }
 
         await Task.WhenAll(storeSignedDataTasks);
-        
+
+        var signingCompletedMessageSender = _serviceBusClient.CreateSender(SigningCompleted.QueueName);
+        var signingCompletedMessage = new SigningCompleted
+        {
+            KeyId = payload.KeyId
+        };
+
+        var messageBody = JsonConvert.SerializeObject(signingCompletedMessage);
+
+        await signingCompletedMessageSender.SendMessageAsync(
+            new ServiceBusMessage(Encoding.UTF8.GetBytes(messageBody)));
 
         await args.CompleteMessageAsync(message);
     }
