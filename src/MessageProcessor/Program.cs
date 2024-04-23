@@ -26,6 +26,7 @@ static IHostBuilder CreateHostBuilder(string[] args)
 
             var serviceBusConnectionString = configuration.GetValue<string>("ServiceBus");
             services.AddOptions();
+            services.AddLogging();
             services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
             services.AddSingleton<IServiceBusClientFactory>(new ServiceBusClientFactory(serviceBusConnectionString));

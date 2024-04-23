@@ -5,6 +5,7 @@ using KeyManagement.Api.Client;
 using MessageProcessor.Config;
 using MessageProcessor.Infrastructure;
 using Messages;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SigningService.Api.Client;
@@ -22,6 +23,7 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
     private readonly ISigningClient _signingClient;
     private readonly IDocumentsClient _documentClient;
     private readonly IKeysClient _keysClient;
+    private readonly ILogger<SigningTriggeredHandler> _logger;
     private readonly AppSettings _appSettings;
     private readonly ServiceBusClient _serviceBusClient;
 
@@ -32,11 +34,13 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         ISigningClient signingClient,
         IDocumentsClient documentClient,
         IKeysClient keysClient,
+        ILogger<SigningTriggeredHandler> logger,
         IOptions<AppSettings> appSettings)
     {
         _signingClient = signingClient;
         _documentClient = documentClient;
         _keysClient = keysClient;
+        _logger = logger;
         _appSettings = appSettings.Value;
         _serviceBusClient = serviceBusClientFactory.CreateClient();
     }
@@ -66,16 +70,16 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         try
         {
             signingKey = await _keysClient.PopAsync();
+            _logger.LogInformation("Signing key ID: {0}", signingKey.Id);
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogError("Unable to find signing key, scheduling the message");
             var signingCompletedMessageSender = _serviceBusClient.CreateSender(SigningTriggered.QueueName);
 
             await signingCompletedMessageSender.ScheduleMessageAsync(
                 new ServiceBusMessage(Encoding.UTF8.GetBytes(messageJson)), DateTimeOffset.UtcNow.AddMinutes(5));
-
-            await signingCompletedMessageSender.SendMessageAsync(
-                new ServiceBusMessage(Encoding.UTF8.GetBytes(messageJson)));
+            
             await args.CompleteMessageAsync(message);
         }
 
@@ -89,9 +93,10 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
                 numSigningDataBatches++;
             }
 
+            var traversedSigningIndex = 0;
             for (var i = 0; i < numSigningDataBatches; i++)
             {
-                var batch = payload.Documents.GetRange(i,
+                var batch = payload.Documents.GetRange(traversedSigningIndex,
                     Math.Min(_appSettings.SigningBatchSize, payload.Documents.Count));
                 var signedDataTask = _signingClient.SignAsync(new SigningInput
                 {
@@ -103,11 +108,13 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
                     }).ToList()
                 });
                 signingDataTasks.Add(signedDataTask);
+                traversedSigningIndex += _appSettings.SigningBatchSize;
             }
 
             var singedDataCollection = await Task.WhenAll(signingDataTasks);
 
             var signedDataList = singedDataCollection.SelectMany(c => c).ToList();
+            _logger.LogInformation("{0} data is signed by Signing Service", signedDataList.Count);
 
             var storeSignedDataTasks = new List<Task>();
             int numStoringDataBatches = signedDataList.Count / _appSettings.CollectionServiceBatchSize;
@@ -116,9 +123,10 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
                 numStoringDataBatches++;
             }
 
+            var traversedStoringIndex = 0;
             for (int i = 0; i < numStoringDataBatches; i++)
             {
-                var batch = signedDataList.GetRange(i,
+                var batch = signedDataList.GetRange(traversedStoringIndex,
                     Math.Min(_appSettings.CollectionServiceBatchSize, payload.Documents.Count));
 
 
@@ -128,6 +136,7 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
                     DocumentId = b.Id
                 }));
                 storeSignedDataTasks.Add(signedDataTask);
+                traversedStoringIndex += _appSettings.CollectionServiceBatchSize;
             }
 
             await Task.WhenAll(storeSignedDataTasks);
@@ -143,18 +152,20 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
             await signingCompletedMessageSender.SendMessageAsync(
                 new ServiceBusMessage(Encoding.UTF8.GetBytes(messageBody)));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError("Failed to complete the signing", ex);
             await _keysClient.ReleaseLockAsync(signingKey.Id);
             throw;
         }
 
         await args.CompleteMessageAsync(message);
+        _logger.LogInformation("Signing completed");
     }
 
     Task ProcessErrorAsync(ProcessErrorEventArgs args)
     {
-        Console.WriteLine($"Error occurred: {args.Exception}");
+        _logger.LogError($"Error occurred: {args.Exception}");
         return Task.CompletedTask;
     }
 }
