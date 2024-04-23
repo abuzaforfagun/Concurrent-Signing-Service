@@ -5,114 +5,113 @@ using KeyManagement.Api.Dtos;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
-namespace KeyManagement.Api.Services
+namespace KeyManagement.Api.Services;
+
+public interface IKeyStorageService
 {
-    public interface IKeyStorageService
+    Task<Guid?> PopLeastUsedKeyAsync();
+    Task<string?> GetPrivateKeyAsync(Guid id);
+    Task<bool> ReleaseLockAsync(Guid id);
+}
+
+public class KeyStorageService : IKeyStorageService
+{
+    private readonly DatabaseOptions _databaseConfig;
+
+    public KeyStorageService(IOptions<DatabaseOptions> databaseConfig)
     {
-        Task<Guid?> PopLeastUsedKeyAsync();
-        Task<string?> GetPrivateKeyAsync(Guid id);
-        Task<bool> ReleaseLockAsync(Guid id);
+        _databaseConfig = databaseConfig.Value;
     }
-
-    public class KeyStorageService : IKeyStorageService
+    public async Task<Guid?> PopLeastUsedKeyAsync()
     {
-        private readonly DatabaseOptions _databaseConfig;
+        using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
+        connection.Open();
 
-        public KeyStorageService(IOptions<DatabaseOptions> databaseConfig)
+        Guid? result = null;
+        using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+        try
         {
-            _databaseConfig = databaseConfig.Value;
-        }
-        public async Task<Guid?> PopLeastUsedKeyAsync()
-        {
-            using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
-            connection.Open();
+            // Execute Dapper query within the transaction
+            result = await connection.QuerySingleOrDefaultAsync<Guid?>(
+                "SELECT TOP 1 Id FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
+                transaction: transaction);
 
-            Guid? result = null;
-            using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            try
-            {
-                // Execute Dapper query within the transaction
-                result = await connection.QuerySingleOrDefaultAsync<Guid?>(
-                    "SELECT TOP 1 Id FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
-                    transaction: transaction);
-
-                if (result is null)
-                {
-                    transaction.Rollback();
-                    return null;
-                }
-
-                var updateQuery = "UPDATE Keys SET IsLocked=1 WHERE Id = @Id";
-                await connection.ExecuteAsync(updateQuery, new
-                {
-                    Id = result
-                }, transaction);
-                
-                transaction.Commit();
-            }
-            catch (Exception ex)
+            if (result is null)
             {
                 transaction.Rollback();
-
                 return null;
             }
 
-            return result;
+            var updateQuery = "UPDATE Keys SET IsLocked=1 WHERE Id = @Id";
+            await connection.ExecuteAsync(updateQuery, new
+            {
+                Id = result
+            }, transaction);
+                
+            transaction.Commit();
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+
+            return null;
         }
 
-        public async Task<string?> GetPrivateKeyAsync(Guid id)
+        return result;
+    }
+
+    public async Task<string?> GetPrivateKeyAsync(Guid id)
+    {
+        using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
+        connection.Open();
+
+        var privateKey = await connection.QuerySingleOrDefaultAsync<string>("SELECT PrivateKey FROM Keys WHERE Id=@Id", new
         {
-            using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
-            connection.Open();
+            Id = id
+        });
 
-            var privateKey = await connection.QuerySingleOrDefaultAsync<string>("SELECT PrivateKey FROM Keys WHERE Id=@Id", new
-            {
-                Id = id
-            });
+        return privateKey;
+    }
 
-            return privateKey;
+    public async Task<bool> ReleaseLockAsync(Guid id)
+    {
+        using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
+        connection.Open();
+
+        var key = await connection.QuerySingleOrDefaultAsync<Key>("SELECT * FROM Keys WHERE Id=@Id AND IsLocked=1", new
+        {
+            Id = id
+        });
+
+        if (key is null)
+        {
+            return false;
         }
 
-        public async Task<bool> ReleaseLockAsync(Guid id)
+        using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+        try
         {
-            using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
-            connection.Open();
-
-            var key = await connection.QuerySingleOrDefaultAsync<Key>("SELECT * FROM Keys WHERE Id=@Id AND IsLocked=1", new
+            await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
             {
                 Id = id
-            });
+            }, transaction);
 
-            if (key is null)
-            {
-                return false;
-            }
-
-            using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            try
-            {
-                await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
+            await connection.ExecuteAsync(
+                "INSERT INTO Keys (Id, PublicKey, PrivateKey) VALUES (@Id, @PublicKey, @PrivateKey)", new
                 {
-                    Id = id
+                    Id = key.Id,
+                    PublicKey = key.PublicKey,
+                    PrivateKey = key.PrivateKey
                 }, transaction);
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
 
-                await connection.ExecuteAsync(
-                    "INSERT INTO Keys (Id, PublicKey, PrivateKey) VALUES (@Id, @PublicKey, @PrivateKey)", new
-                    {
-                        Id = key.Id,
-                        PublicKey = key.PublicKey,
-                        PrivateKey = key.PrivateKey
-                    }, transaction);
-            }
-            catch (Exception)
-            {
-                transaction.Rollback();
-
-                return false;
-            }
+            return false;
+        }
             
 
-            return true;
-        }
+        return true;
     }
 }
