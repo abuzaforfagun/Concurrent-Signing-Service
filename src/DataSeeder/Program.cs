@@ -14,14 +14,14 @@ var publicDataSeeder = host.Services.GetRequiredService<IPublicDataSeeder>();
 
 if (!await publicDataSeeder.HasData())
 {
-    await publicDataSeeder.SeedDataAsync(100000);
+    await publicDataSeeder.SeedDataAsync(1000);
 }
 
 var keyStoreDataSeeder = host.Services.GetRequiredService<IKeyStoreDataSeeder>();
 
 if (!await keyStoreDataSeeder.HasData())
 {
-    await keyStoreDataSeeder.SeedDataAsync(100);
+    await keyStoreDataSeeder.SeedDataAsync(20);
 }
 
 static IHostBuilder CreateHostBuilder(string[] args)
