@@ -12,12 +12,6 @@ using SigningService.Api.Client;
 
 namespace MessageProcessor.Handlers;
 
-public interface ISigningTriggeredHandler
-{
-    Task StartProcessingAsync(CancellationToken token);
-    Task StopProcessingAsync();
-}
-
 public class SigningTriggeredHandler : ISigningTriggeredHandler
 {
     private readonly ISigningClient _signingClient;
@@ -74,7 +68,7 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         }
         catch (KeyNotFoundException ex)
         {
-            _logger.LogError("Unable to find signing key, scheduling the message");
+            _logger.LogError("Unable to find signing key, scheduling the message", ex);
             var signingCompletedMessageSender = _serviceBusClient.CreateSender(SigningTriggered.QueueName);
 
             await signingCompletedMessageSender.ScheduleMessageAsync(
