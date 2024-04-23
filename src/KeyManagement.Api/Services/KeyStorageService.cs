@@ -33,7 +33,7 @@ public class KeyStorageService : IKeyStorageService
         {
             // Execute Dapper query within the transaction
             result = await connection.QuerySingleOrDefaultAsync<Key>(
-                "SELECT TOP 1 Id, PrivateKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
+                "SELECT TOP 1 Id, PrivateKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0 ORDER BY ModifiedAtUtc ASC",
                 transaction: transaction);
 
             if (result is null)
@@ -88,29 +88,12 @@ public class KeyStorageService : IKeyStorageService
             return false;
         }
 
-        using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-        try
-        {
-            await connection.ExecuteAsync("DELETE FROM Keys WHERE Id=@Id", new
+        await connection.ExecuteAsync(
+            "UPDATE Keys SET IsLocked=0, ModifiedAtUtc=@CurrentTime WHERE Id=@Id", new
             {
-                Id = id
-            }, transaction);
-
-            await connection.ExecuteAsync(
-                "INSERT INTO Keys (PublicKey, PrivateKey) VALUES (@PublicKey, @PrivateKey)", new
-                {
-                    PublicKey = key.PublicKey,
-                    PrivateKey = key.PrivateKey
-                }, transaction);
-            transaction.Commit();
-        }
-        catch (Exception)
-        {
-            transaction.Rollback();
-
-            return false;
-        }
-            
+                Id = id,
+                CurrentTime = DateTimeOffset.UtcNow
+            });
 
         return true;
     }
