@@ -58,8 +58,14 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         var messageJson = Encoding.UTF8.GetString(message.Body);
         var payload = JsonConvert.DeserializeObject<SigningTriggered>(messageJson);
         var signingDataTasks = new List<Task<ICollection<SigningOutput>>>();
-        // batch the data by X
-        for (int i = 0; i < payload!.Documents.Count; i++)
+
+        int numSigningDataBatches = payload!.Documents.Count / _appSettings.SigningBatchSize;
+        if (payload!.Documents.Count % _appSettings.SigningBatchSize != 0)
+        {
+            numSigningDataBatches++;
+        }
+
+        for (var i = 0; i < numSigningDataBatches; i++)
         {
             var batch = payload.Documents.GetRange(i, Math.Min(_appSettings.SigningBatchSize, payload.Documents.Count));
             var signedDataTask =  _signingClient.SignAsync(new SigningInput
@@ -79,7 +85,12 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         var signedDataList = singedDataCollection.SelectMany(c => c).ToList();
 
         var storeSignedDataTasks = new List<Task>();
-        for (int i = 0; i < signedDataList.Count; i++)
+        int numStoringDataBatches = signedDataList.Count / _appSettings.CollectionServiceBatchSize;
+        if (signedDataList.Count % _appSettings.CollectionServiceBatchSize != 0)
+        {
+            numStoringDataBatches++;
+        }
+        for (int i = 0; i < numStoringDataBatches; i++)
         {
             var batch = signedDataList.GetRange(i, Math.Min(_appSettings.CollectionServiceBatchSize, payload.Documents.Count));
 
