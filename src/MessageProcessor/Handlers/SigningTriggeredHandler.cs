@@ -135,7 +135,7 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
             var signingCompletedMessageSender = _serviceBusClient.CreateSender(SigningCompleted.QueueName);
             var signingCompletedMessage = new SigningCompleted
             {
-                KeyId = signingKey.PrivateKey
+                KeyId = signingKey.Id.ToString()
             };
 
             var messageBody = JsonConvert.SerializeObject(signingCompletedMessage);
