@@ -26,13 +26,14 @@ public class KeysController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Pop()
     {
-        var id = await _keyStorage.PopLeastUsedKeyAsync();
+        var key = await _keyStorage.PopLeastUsedKeyAsync();
 
-        if(id is null) return NotFound();
+        if(key is null) return NotFound();
 
         return Ok(new GetKeyOutput
         {
-            Id = id.Value
+            Id = key.Id,
+            PrivateKey = SymmetricEncryption.Encrypt(key.PrivateKey, _encryptionOptions.PrivateKey)
         });
     }
 

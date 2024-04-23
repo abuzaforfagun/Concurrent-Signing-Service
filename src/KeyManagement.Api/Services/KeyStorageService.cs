@@ -9,7 +9,7 @@ namespace KeyManagement.Api.Services;
 
 public interface IKeyStorageService
 {
-    Task<Guid?> PopLeastUsedKeyAsync();
+    Task<Key?> PopLeastUsedKeyAsync();
     Task<string?> GetPrivateKeyAsync(Guid id);
     Task<bool> ReleaseLockAsync(Guid id);
 }
@@ -22,18 +22,18 @@ public class KeyStorageService : IKeyStorageService
     {
         _databaseConfig = databaseConfig.Value;
     }
-    public async Task<Guid?> PopLeastUsedKeyAsync()
+    public async Task<Key?> PopLeastUsedKeyAsync()
     {
         using IDbConnection connection = new SqlConnection(_databaseConfig.KeyStoreConnectionString);
         connection.Open();
 
-        Guid? result = null;
+        Key? result = null;
         using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
         try
         {
             // Execute Dapper query within the transaction
-            result = await connection.QuerySingleOrDefaultAsync<Guid?>(
-                "SELECT TOP 1 Id FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
+            result = await connection.QuerySingleOrDefaultAsync<Key>(
+                "SELECT TOP 1 Id, PrivateKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0",
                 transaction: transaction);
 
             if (result is null)
@@ -45,7 +45,7 @@ public class KeyStorageService : IKeyStorageService
             var updateQuery = "UPDATE Keys SET IsLocked=1 WHERE Id = @Id";
             await connection.ExecuteAsync(updateQuery, new
             {
-                Id = result
+                Id = result.Id
             }, transaction);
                 
             transaction.Commit();
@@ -97,12 +97,12 @@ public class KeyStorageService : IKeyStorageService
             }, transaction);
 
             await connection.ExecuteAsync(
-                "INSERT INTO Keys (Id, PublicKey, PrivateKey) VALUES (@Id, @PublicKey, @PrivateKey)", new
+                "INSERT INTO Keys (PublicKey, PrivateKey) VALUES (@PublicKey, @PrivateKey)", new
                 {
-                    Id = key.Id,
                     PublicKey = key.PublicKey,
                     PrivateKey = key.PrivateKey
                 }, transaction);
+            transaction.Commit();
         }
         catch (Exception)
         {
