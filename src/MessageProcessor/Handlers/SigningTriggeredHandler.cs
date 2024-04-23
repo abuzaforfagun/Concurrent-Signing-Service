@@ -85,66 +85,14 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
 
         try
         {
-            var signingDataTasks = new List<Task<ICollection<SigningOutput>>>();
+            var signedDataList = await GetSingedData(payload, signingKey!);
 
-            int numSigningDataBatches = payload!.Documents.Count / _appSettings.SigningBatchSize;
-            if (payload!.Documents.Count % _appSettings.SigningBatchSize != 0)
-            {
-                numSigningDataBatches++;
-            }
-
-            var traversedSigningIndex = 0;
-            for (var i = 0; i < numSigningDataBatches; i++)
-            {
-                var batch = payload.Documents.GetRange(traversedSigningIndex,
-                    Math.Min(_appSettings.SigningBatchSize, payload.Documents.Count));
-                var signedDataTask = _signingClient.SignAsync(new SigningInput
-                {
-                    PrivateKey = signingKey.PrivateKey,
-                    Data = batch.Select(d => new DataItem
-                    {
-                        Content = d.Content,
-                        Id = d.DocumentId
-                    }).ToList()
-                });
-                signingDataTasks.Add(signedDataTask);
-                traversedSigningIndex += _appSettings.SigningBatchSize;
-            }
-
-            var singedDataCollection = await Task.WhenAll(signingDataTasks);
-
-            var signedDataList = singedDataCollection.SelectMany(c => c).ToList();
-            _logger.LogInformation("{0} data is signed by Signing Service", signedDataList.Count);
-
-            var storeSignedDataTasks = new List<Task>();
-            int numStoringDataBatches = signedDataList.Count / _appSettings.CollectionServiceBatchSize;
-            if (signedDataList.Count % _appSettings.CollectionServiceBatchSize != 0)
-            {
-                numStoringDataBatches++;
-            }
-
-            var traversedStoringIndex = 0;
-            for (int i = 0; i < numStoringDataBatches; i++)
-            {
-                var batch = signedDataList.GetRange(traversedStoringIndex,
-                    Math.Min(_appSettings.CollectionServiceBatchSize, payload.Documents.Count));
-
-
-                var signedDataTask = _documentClient.CreateSignedAsync(batch.Select(b => new AddSignedDocumentInput
-                {
-                    Content = b.SignedData,
-                    DocumentId = b.Id
-                }));
-                storeSignedDataTasks.Add(signedDataTask);
-                traversedStoringIndex += _appSettings.CollectionServiceBatchSize;
-            }
-
-            await Task.WhenAll(storeSignedDataTasks);
+            await StoreSignedData(signedDataList, payload!);
 
             var signingCompletedMessageSender = _serviceBusClient.CreateSender(SigningCompleted.QueueName);
             var signingCompletedMessage = new SigningCompleted
             {
-                KeyId = signingKey.Id.ToString()
+                KeyId = signingKey!.Id.ToString()
             };
 
             var messageBody = JsonConvert.SerializeObject(signingCompletedMessage);
@@ -155,12 +103,77 @@ public class SigningTriggeredHandler : ISigningTriggeredHandler
         catch (Exception ex)
         {
             _logger.LogError("Failed to complete the signing", ex);
-            await _keysClient.ReleaseLockAsync(signingKey.Id);
+            await _keysClient.ReleaseLockAsync(signingKey!.Id);
             throw;
         }
 
         await args.CompleteMessageAsync(message);
         _logger.LogInformation("Signing completed");
+    }
+
+    //TODO: Move the method to a different service for better unit testing
+    private async Task StoreSignedData(List<SigningOutput> signedDataList, SigningTriggered message)
+    {
+        var storeSignedDataTasks = new List<Task>();
+        var numberOfBatch = signedDataList.Count / _appSettings.CollectionServiceBatchSize;
+        if (signedDataList.Count % _appSettings.CollectionServiceBatchSize != 0)
+        {
+            numberOfBatch++;
+        }
+
+        var traversedIndex = 0;
+        for (var i = 0; i < numberOfBatch; i++)
+        {
+            var batch = signedDataList.GetRange(traversedIndex,
+                Math.Min(_appSettings.CollectionServiceBatchSize, message.Documents.Count));
+
+
+            var signedDataTask = _documentClient.CreateSignedAsync(batch.Select(b => new AddSignedDocumentInput
+            {
+                Content = b.SignedData,
+                DocumentId = b.Id
+            }));
+            storeSignedDataTasks.Add(signedDataTask);
+            traversedIndex += _appSettings.CollectionServiceBatchSize;
+        }
+
+        await Task.WhenAll(storeSignedDataTasks);
+    }
+
+    //TODO: Move the method to a different service for better unit testing
+    private async Task<List<SigningOutput>> GetSingedData(SigningTriggered? payload, GetKeyOutput signingKey)
+    {
+        var signingDataTasks = new List<Task<ICollection<SigningOutput>>>();
+
+        int numSigningDataBatches = payload!.Documents.Count / _appSettings.SigningBatchSize;
+        if (payload!.Documents.Count % _appSettings.SigningBatchSize != 0)
+        {
+            numSigningDataBatches++;
+        }
+
+        var traversedIndex = 0;
+        for (var i = 0; i < numSigningDataBatches; i++)
+        {
+            var batch = payload.Documents.GetRange(traversedIndex,
+                Math.Min(_appSettings.SigningBatchSize, payload.Documents.Count));
+            var signedDataTask = _signingClient.SignAsync(new SigningInput
+            {
+                PrivateKey = signingKey.PrivateKey,
+                Data = batch.Select(d => new DataItem
+                {
+                    Content = d.Content,
+                    Id = d.DocumentId
+                }).ToList()
+            });
+            signingDataTasks.Add(signedDataTask);
+            traversedIndex += _appSettings.SigningBatchSize;
+        }
+
+        var singedDataCollection = await Task.WhenAll(signingDataTasks);
+
+        var signedDataList = singedDataCollection.SelectMany(c => c).ToList();
+        _logger.LogInformation("{0} data is signed by Signing Service", signedDataList.Count);
+        return signedDataList;
     }
 
     Task ProcessErrorAsync(ProcessErrorEventArgs args)

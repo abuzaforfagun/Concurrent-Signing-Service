@@ -27,11 +27,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SigningService", "SigningSe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CollectionService", "CollectionService", "{96C84E31-CD67-4777-95C4-816DA7227E39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollectionService.Api.Client", "src\CollectionService.Api.Client\CollectionService.Api.Client.csproj", "{766C3513-D495-4929-A415-BD70E64CA759}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollectionService.Api.Client", "src\CollectionService.Api.Client\CollectionService.Api.Client.csproj", "{766C3513-D495-4929-A415-BD70E64CA759}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cryptography", "Cryptography", "{02E941A4-9A9A-41BF-B2F6-824885DE80BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentSigning.Cryptography.Tests", "tests\ConcurrentSigning.Cryptography.Tests\ConcurrentSigning.Cryptography.Tests.csproj", "{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConcurrentSigning.Cryptography.Tests", "tests\ConcurrentSigning.Cryptography.Tests\ConcurrentSigning.Cryptography.Tests.csproj", "{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Executor", "src\Executor\Executor.csproj", "{9D329869-7599-4662-8E3D-B79ECCAAB76D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,10 @@ Global
 		{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
