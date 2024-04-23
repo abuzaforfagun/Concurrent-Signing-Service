@@ -43,11 +43,11 @@ public class KeyStoreDataSeeder : IKeyStoreDataSeeder
 
     public async Task<bool> HasData()
     {
-        using IDbConnection dbConnection = new SqlConnection(_databaseOptions.PublicDataConnectionString);
+        using IDbConnection dbConnection = new SqlConnection(_databaseOptions.KeyStoreConnectionString);
         dbConnection.Open();
         var query = "SELECT TOP 1 * FROM Keys";
 
-        var data = await dbConnection.QuerySingleOrDefaultAsync<PublicDocument>(query);
+        var data = await dbConnection.QuerySingleOrDefaultAsync<Key>(query);
 
         return data != null;
     }
