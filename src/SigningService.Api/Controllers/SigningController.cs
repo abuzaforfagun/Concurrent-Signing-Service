@@ -2,7 +2,6 @@
 using System.Text;
 using Asp.Versioning;
 using ConcurrentSigning.Cryptography;
-using KeyManagement.Api.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SigningService.Api.Models;
@@ -14,12 +13,10 @@ namespace SigningService.Api.Controllers;
 [ApiVersion("1")]
 public class SigningController : ControllerBase
 {
-    private readonly IKeysClient _keysClient;
     private readonly EncryptionOptions _encryptionOptions;
 
-    public SigningController(IKeysClient keysClient, IOptions<EncryptionOptions> encryptionOptions)
+    public SigningController(IOptions<EncryptionOptions> encryptionOptions)
     {
-        _keysClient = keysClient;
         _encryptionOptions = encryptionOptions.Value;
     }
 
@@ -28,9 +25,8 @@ public class SigningController : ControllerBase
     [ProducesResponseType(typeof(List<SigningOutput>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Sign(SigningInput input)
     {
-        var privateKeyPayload = await _keysClient.GetDetailsAsync(input.KeyId);
         var plainPrivateKey =
-            Encoding.UTF8.GetString(Convert.FromBase64String(SymmetricEncryption.Decrypt(privateKeyPayload.PrivateKey,
+            Encoding.UTF8.GetString(Convert.FromBase64String(SymmetricEncryption.Decrypt(input.PrivateKey,
                 _encryptionOptions.PrivateKey)));
 
         var result = new List<SigningOutput>();

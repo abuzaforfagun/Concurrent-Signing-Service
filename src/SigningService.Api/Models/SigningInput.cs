@@ -4,8 +4,7 @@ namespace SigningService.Api.Models;
 
 public class SigningInput
 {
-    [Required]
-    public Guid KeyId { get; set; }
+    [Required] public string PrivateKey { get; set; } = default!;
 
     [MaxLength(1000)]
     public List<DataItem> Data { get; set; } = new();
