@@ -28,7 +28,7 @@ Get collection of data from the database. And we will use this service to store 
 
 ### Key Management Service
 The main goal of the service is to work with public and private keys. When we ask for a key, it will lock the table, update the locked flag as true of the first row and return the first item from the table.
-When we call the release lock endpoint, it will delete the item and re add with locked flag as false at the end of the table.
+When we call the release lock endpoint, it will update the locked flag as false and update modification time.
 
 ### Signing Service
 The responsibility of this service is to handle the encryption of the data using public key.
@@ -50,8 +50,7 @@ The processor retrieve the public key information from the message and call key 
 ### Signing Executor
 It will work as aggregator, the responsibilities are:
 * Get batch data from collection service.
-* Get a public key from key management service.
-* Trigger a message with batch data and public key.
+* Trigger a message with batch data.
 
 
 
@@ -59,3 +58,14 @@ It will work as aggregator, the responsibilities are:
 *Data Seeder*
 Seed data to the databases.
 
+## How to run the application
+Prerequists:
+* Docker
+*Steps to run*:
+* Open terminal to the root folder
+* Execute `docker-compose build`
+* Execute `docker-compose up`
+
+*Common issues*:
+* As we are running the database server in docker, sometimes it crashes. In that case, we need to rerun database server.
+* As the database server creation and database creation takes random time(Sometimes it takes less than 30 seconds, sometime more than a minute), we have added delay to the data seeding tool and executor service.
