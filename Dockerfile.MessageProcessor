@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["src/MessageProcessor/MessageProcessor.csproj", "src/MessageProcessor/"]
+COPY ["src/Messages/Messages.csproj", "src/Messages/"]
+COPY ["src/SigningService.Api.Client/SigningService.Api.Client.csproj", "src/SigningService.Api.Client/"]
+COPY ["src/KeyManagement.Api.Client/KeyManagement.Api.Client.csproj", "src/KeyManagement.Api.Client/"]
+COPY ["src/CollectionService.Api.Client/CollectionService.Api.Client.csproj", "src/CollectionService.Api.Client/"]
+RUN dotnet restore "src/MessageProcessor/MessageProcessor.csproj"
+COPY . .
+WORKDIR "/src/src/MessageProcessor"
+RUN dotnet build "MessageProcessor.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "MessageProcessor.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "MessageProcessor.dll"]

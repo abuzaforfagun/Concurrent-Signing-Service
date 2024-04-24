@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Y0urStrongP@ssword"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./scripts:/usr/src/scripts
+    command: /bin/bash -c "/opt/mssql/bin/sqlservr & /usr/src/scripts/db-creation.sh && tail -f /dev/null"
+  data-seeder:
+    build:
+      context: .
+      dockerfile: Dockerfile.DataSeeder
+    environment:
+      Database__PublicDataConnectionString: "Server=sql-server,1433;Database=PublicData;User=sa;Password=Y0urStrongP@ssword;Encrypt=false"
+      Database__KeyStoreConnectionString: "Server=sql-server,1433;Database=KeyStore;User=sa;Password=Y0urStrongP@ssword;Encrypt=false"
+      IsRunningFromDockerCompose: true
+      AppSettings__NumberOfMockDocument: 1000
+      AppSettings__NumberOfMockKeys: 20
+    depends_on:
+      - sql-server
+        
+  collection-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.CollectionService
+    environment:
+      Database__PublicDataConnectionString: "Server=sql-server,1433;Database=PublicData;User=sa;Password=Y0urStrongP@ssword;Encrypt=false"
+      ASPNETCORE_URLS: http://+:5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - sql-server
+      - data-seeder
+  key-management-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.KeyManagement
+    environment:
+      Database__KeyStoreConnectionString: "Server=sql-server,1433;Database=KeyStore;User=sa;Password=Y0urStrongP@ssword;Encrypt=false"
+      Encryption__PrivateKey: "b14ca5898a4e4133bbce2ea2315a1916"
+      ASPNETCORE_URLS: http://+:6000
+    ports:
+      - "6000:6000"
+    depends_on:
+      - sql-server
+      - data-seeder
+  signing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.SigningService
+    environment:
+      Encryption__PrivateKey: "b14ca5898a4e4133bbce2ea2315a1916"
+      ASPNETCORE_URLS: http://+:7000
+    ports:
+      - "7000:7000"
+    depends_on:
+      - sql-server
+  message-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.MessageProcessor
+    environment:
+      CollectionsApi__BaseAddress: "http://collection-service:5000"
+      SigningApi__BaseAddress: "http://signing-service:7000"
+      KeysApi__BaseAddress: "http://key-management-service:6000"
+      ServiceBus: "Endpoint=sb://interop-labs.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=jCyyoBbR9F61jTiBH/YUlcEHJQC6jmz9O+ASbEkk0pY="
+      AppSettings__SigningBatchSize: 5
+      AppSettings__CollectionServiceBatchSize: 5
+    depends_on:
+      - sql-server
+      - collection-service
+      - key-management-service
+      - signing-service
+  executor:
+    build:
+      context: .
+      dockerfile: Dockerfile.Executor
+    environment:
+      CollectionsApi__BaseAddress: "http://collection-service:5000"
+      AppSettings__BatchSize: 20
+      ServiceBus: "Endpoint=sb://interop-labs.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=jCyyoBbR9F61jTiBH/YUlcEHJQC6jmz9O+ASbEkk0pY="
+    depends_on:
+      - sql-server
+      - collection-service
+      - key-management-service
+      - signing-service
+      - message-processor

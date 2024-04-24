@@ -11,6 +11,14 @@ var host = CreateHostBuilder(args).Build();
 var executorService = host.Services.GetRequiredService<IDataSigningExecutorService>();
 var appSettings = host.Services.GetRequiredService<IOptions<AppSettings>>().Value;
 
+//TODO: Move the wait to docker-compose
+var configuration = host.Services.GetRequiredService<IConfiguration>();
+var isRunningFromDockerCompose = configuration.GetValue<bool>("IsRunningFromDockerCompose");
+if (isRunningFromDockerCompose)
+{
+    await Task.Delay(240000);
+}
+
 await executorService.ExecuteAsync(appSettings.BatchSize);
 
 static IHostBuilder CreateHostBuilder(string[] args)
@@ -35,7 +43,6 @@ static IHostBuilder CreateHostBuilder(string[] args)
                     client.BaseAddress = new Uri(configuration.GetValue<string>("CollectionsApi:BaseAddress"));
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(30));
-            
             services.AddSingleton<IDataSigningExecutorService, DataSigningExecutorService>();
         });
 
