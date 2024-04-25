@@ -33,7 +33,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cryptography", "Cryptograph
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConcurrentSigning.Cryptography.Tests", "tests\ConcurrentSigning.Cryptography.Tests\ConcurrentSigning.Cryptography.Tests.csproj", "{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Executor", "src\Executor\Executor.csproj", "{9D329869-7599-4662-8E3D-B79ECCAAB76D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Executor", "src\Executor\Executor.csproj", "{9D329869-7599-4662-8E3D-B79ECCAAB76D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyManagement.Api.IntegrationTests", "tests\KeyManagement.Api.IntegrationTests\KeyManagement.Api.IntegrationTests.csproj", "{95727CAC-F379-48E0-9956-7386A8CF10F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +91,10 @@ Global
 		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D329869-7599-4662-8E3D-B79ECCAAB76D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95727CAC-F379-48E0-9956-7386A8CF10F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95727CAC-F379-48E0-9956-7386A8CF10F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95727CAC-F379-48E0-9956-7386A8CF10F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95727CAC-F379-48E0-9956-7386A8CF10F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{8DB0DB65-54BE-4B45-81E8-6AB42CD716EF} = {228F26D1-CC21-4511-B3C2-495EE4E84DF1}
 		{766C3513-D495-4929-A415-BD70E64CA759} = {96C84E31-CD67-4777-95C4-816DA7227E39}
 		{6D1A783D-B0F7-4B74-B004-DCA8A948C7D9} = {02E941A4-9A9A-41BF-B2F6-824885DE80BF}
+		{95727CAC-F379-48E0-9956-7386A8CF10F6} = {2CC925F4-888A-4DE0-B749-A43F1795BD63}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12CA5B75-0FE8-43C9-848E-DDC5264903EA}

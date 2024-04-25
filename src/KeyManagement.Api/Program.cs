@@ -43,3 +43,5 @@ app.UseSwaggerUi3();
 
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.Run();
+
+public partial class Program{}
