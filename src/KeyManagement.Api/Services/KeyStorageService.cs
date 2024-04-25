@@ -7,13 +7,6 @@ using Microsoft.Extensions.Options;
 
 namespace KeyManagement.Api.Services;
 
-public interface IKeyStorageService
-{
-    Task<Key?> PopLeastUsedKeyAsync();
-    Task<string?> GetPrivateKeyAsync(Guid id);
-    Task<bool> ReleaseLockAsync(Guid id);
-}
-
 public class KeyStorageService : IKeyStorageService
 {
     private readonly DatabaseOptions _databaseConfig;
@@ -31,7 +24,6 @@ public class KeyStorageService : IKeyStorageService
         using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
         try
         {
-            // Execute Dapper query within the transaction
             result = await connection.QuerySingleOrDefaultAsync<Key>(
                 "SELECT TOP 1 Id, PrivateKey FROM Keys WITH (ROWLOCK, XLOCK) WHERE IsLocked=0 ORDER BY ModifiedAtUtc ASC",
                 transaction: transaction);
