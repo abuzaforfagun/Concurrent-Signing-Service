@@ -34,6 +34,12 @@ Prerequists:
 * As the database server creation and database creation takes random time(Sometimes it takes less than 30 seconds, sometime more than a minute), we have added delay to the data seeding tool and executor service.
 
 
+## Tech stack
+* .NET 6
+* SQL Server
+* Azure Service Bus
+* Docker
+
 ## Core Services
 
 ### Collection Service
