@@ -21,7 +21,7 @@ public class KeysController : ControllerBase
         _encryptionOptions = encryptionOptions.Value;
     }
 
-    [HttpGet]
+    [HttpPost]
     [ProducesResponseType(typeof(GetKeyOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Pop()
