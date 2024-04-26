@@ -41,11 +41,6 @@ Prerequists:
 * Azure Service Bus
 * Docker
 
-## Third party libraries
-* **Dapper**: For sql query execution.
-* **NSwag**: Swagger and http client from swagger.
-* **xunit**: Unit and integration tests
-
 ## Core Services
 
 ### Collection Service
