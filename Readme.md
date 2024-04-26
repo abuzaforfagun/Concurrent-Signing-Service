@@ -92,6 +92,7 @@ Seed data to the databases.
 * Consider pre populate the keys in a cache.
 * Better naming
 * More unit and integration tests
+* Using GRPc for service to service communication
 
 ## Possible Questions
 **How the solution is secured?**:
