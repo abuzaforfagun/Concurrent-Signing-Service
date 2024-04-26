@@ -98,6 +98,7 @@ Seed data to the databases.
 * Better naming
 * More unit and integration tests
 * Using GRPc for service to service communication
+* Improve docker compose
 
 ## Possible Questions
 **How the solution is secured?**:
