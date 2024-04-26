@@ -87,8 +87,11 @@ Seed data to the databases.
 
 ## Possible Improvements
 * Error handling
+* Better http error response
 * Proper logging
 * Consider pre populate the keys in a cache.
+* Better naming
+* More unit and integration tests
 
 ## Possible Questions
 **How the solution is secured?**:
